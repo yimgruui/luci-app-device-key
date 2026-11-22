@@ -1,0 +1,117 @@
+msgid ""
+msgstr ""
+"Content-Type: text/plain; charset=UTF-8\n"
+"Project-Id-Version: luci-app-device-key\n"
+"Language: zh_Hant\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+
+msgid "Device SSH Keys"
+msgstr "裝置 SSH 金鑰"
+
+msgid "A new key pair was generated. Claim the private key now."
+msgstr "已產生新的金鑰對，請立即領取私鑰。"
+
+msgid "Private key shown once and deleted from the device."
+msgstr "私鑰只顯示這一次，且已從裝置刪除。"
+
+msgid "Device key revoked."
+msgstr "裝置金鑰已撤銷。"
+
+msgid "Authorized keys saved."
+msgstr "已儲存授權公鑰。"
+
+msgid "Wrong password, nothing changed."
+msgstr "密碼錯誤，未做任何修改。"
+
+msgid "No pending private key on this device."
+msgstr "裝置上沒有待領取的私鑰。"
+
+msgid "Could not update authorized_keys."
+msgstr "無法寫入 authorized_keys。"
+
+msgid "Private key (shown once)"
+msgstr "私鑰（僅顯示一次）"
+
+msgid "This key has already been deleted from the device. Save it now; there is no second chance."
+msgstr "該私鑰已從裝置刪除，請立即儲存；關閉後無法再次取得。"
+
+msgid "Status"
+msgstr "狀態"
+
+msgid "State"
+msgstr "狀態"
+
+msgid "Key generated, waiting to be claimed"
+msgstr "已產生，等待領取"
+
+msgid "Claimed (device keeps only the public key)"
+msgstr "已領取（裝置只保留公鑰）"
+
+msgid "No key generated yet"
+msgstr "尚未產生金鑰"
+
+msgid "Fingerprint"
+msgstr "指紋"
+
+msgid "Created"
+msgstr "產生時間"
+
+msgid "Authorized keys"
+msgstr "授權公鑰數"
+
+msgid "Password login"
+msgstr "密碼登入"
+
+msgid "disabled"
+msgstr "已停用"
+
+msgid "enabled"
+msgstr "已啟用"
+
+msgid "Claim private key"
+msgstr "領取私鑰"
+
+msgid "The private key lives in RAM only and is deleted the moment it is shown."
+msgstr "私鑰只存在於記憶體中，顯示後立即刪除。"
+
+msgid "Root password"
+msgstr "root 密碼"
+
+msgid "Show private key once"
+msgstr "顯示一次私鑰"
+
+msgid "Device key pair"
+msgstr "裝置金鑰對"
+
+msgid "Generating replaces the previous device key; manually added keys are kept."
+msgstr "重新產生會取代上一次的裝置金鑰，手動新增的公鑰會保留。"
+
+msgid "Generate new key pair"
+msgstr "產生新金鑰對"
+
+msgid "Revoke device key"
+msgstr "撤銷裝置金鑰"
+
+msgid "Manual public keys"
+msgstr "手動公鑰"
+
+msgid "One key per line, same format as the stock SSH-Keys page."
+msgstr "每行一個公鑰，格式與原「SSH 金鑰」頁面相同。"
+
+msgid "Save keys"
+msgstr "儲存公鑰"
+
+msgid "How to use"
+msgstr "使用說明"
+
+msgid "Generate a key pair, then claim the private key (shown once)."
+msgstr "先產生金鑰對，再領取私鑰（只顯示一次）。"
+
+msgid "Save it locally and run chmod 600."
+msgstr "儲存到本機並執行 chmod 600。"
+
+msgid "Log in with: ssh -i id_ed25519 -p 2222 root@<router>"
+msgstr "登入：ssh -i id_ed25519 -p 2222 root@<路由器位址>"
+
+msgid "The device keeps only the public key; it cannot hand the private key out again."
+msgstr "裝置只保留公鑰，無法再次交還私鑰。"

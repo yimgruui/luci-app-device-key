@@ -1,0 +1,156 @@
+#!/bin/sh
+# device-key - per-device SSH key helper used by luci-app-device-key.
+#
+# 私钥只在 /tmp/device-key（tmpfs）里存在，claim 之后立刻删除；
+# 设备上长期只保留公钥与元数据（/etc/device-key）。
+#
+# 用法:
+#   device-key gen            生成一对新密钥（替换本机上一把）
+#   device-key status         输出 KEY=VALUE 形式的状态
+#   device-key claim          打印私钥并立即从设备删除
+#   device-key revoke         删除本机公钥（私钥若还在也一并删除）
+#   device-key getkeys        打印 authorized_keys
+#   device-key setkeys        从 stdin 覆盖 authorized_keys
+#   device-key fingerprint    打印本机公钥指纹
+
+set -u
+
+KEYDIR=/tmp/device-key
+STATEDIR=/etc/device-key
+PRIV="$KEYDIR/id_ed25519"
+PUBFILE="$STATEDIR/pub"
+META="$STATEDIR/meta"
+AUTH=/etc/dropbear/authorized_keys
+MARKER="device-key@"
+
+umask 077
+
+ensure_dirs() {
+	mkdir -p "$KEYDIR" "$STATEDIR"
+	chmod 700 "$KEYDIR" "$STATEDIR"
+	[ -e "$AUTH" ] || : >"$AUTH"
+	chmod 600 "$AUTH"
+}
+
+drop_our_keys() {
+	# 只删注释里带 device-key@ 的行，手动粘贴的公钥原样保留
+	[ -e "$AUTH" ] || return 0
+	grep -v "$MARKER" "$AUTH" >"$AUTH.tmp" 2>/dev/null || : >"$AUTH.tmp"
+	cat "$AUTH.tmp" >"$AUTH"
+	rm -f "$AUTH.tmp"
+}
+
+cmd_gen() {
+	ensure_dirs
+	rm -f "$PRIV" "$PRIV.pub"
+	ssh-keygen -q -t ed25519 -N '' -C "${MARKER}$(cat /proc/sys/kernel/hostname)" \
+		-f "$PRIV" >/dev/null 2>&1 || {
+		echo "ssh-keygen failed" >&2
+		exit 1
+	}
+	drop_our_keys
+	cat "$PRIV.pub" >>"$AUTH"
+	cp "$PRIV.pub" "$PUBFILE"
+	{
+		echo "created=$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+		echo "fingerprint=$(ssh-keygen -lf "$PRIV.pub" | awk '{print $2}')"
+	} >"$META"
+	echo "generated"
+}
+
+cmd_status() {
+	local state=fresh fp="" created="" keys=0 pending=0
+	[ -e "$PUBFILE" ] && [ -s "$META" ] && state=claimed
+	[ -s "$PRIV" ] && { state=pending; pending=1; }
+	[ -s "$META" ] && {
+		fp=$(sed -n 's/^fingerprint=//p' "$META")
+		created=$(sed -n 's/^created=//p' "$META")
+	}
+	[ -e "$AUTH" ] && keys=$(grep -c . "$AUTH" 2>/dev/null || echo 0)
+	echo "state=$state"
+	echo "pending=$pending"
+	echo "fingerprint=$fp"
+	echo "created=$created"
+	echo "keys=$keys"
+	echo "password_auth=$(uci -q get dropbear.@dropbear[0].PasswordAuth 2>/dev/null || echo '')"
+}
+
+cmd_claim() {
+	if [ ! -s "$PRIV" ]; then
+		echo "no pending key" >&2
+		exit 2
+	fi
+	cat "$PRIV"
+	rm -f "$PRIV"
+	echo "claimed" >&2
+}
+
+cmd_revoke() {
+	drop_our_keys
+	rm -f "$PRIV" "$PRIV.pub" "$PUBFILE" "$META"
+	echo "revoked"
+}
+
+cmd_getkeys() {
+	[ -e "$AUTH" ] && cat "$AUTH"
+}
+
+cmd_setkeys() {
+	ensure_dirs
+	cat >"$AUTH.tmp"
+	chmod 600 "$AUTH.tmp"
+	mv "$AUTH.tmp" "$AUTH"
+	echo "saved"
+}
+
+cmd_checkpw() {
+	# 校验 root 密码：密码从 0600 临时文件读，读完立即删除。
+	# 成功输出 ok；失败退出非 0（不区分“密码错”和“没设密码”）。
+	f="${1:-}"
+	[ -n "$f" ] && [ -r "$f" ] || exit 1
+
+	pw=$(cat "$f" 2>/dev/null)
+	rm -f "$f"
+
+	hash=$(awk -F: '$1 == "root" { print $2 }' /etc/shadow 2>/dev/null)
+	[ -n "$hash" ] || exit 1
+
+	case "$hash" in
+		'$'*) ;;
+		'')   exit 0 ;;	# 空密码：没有可校验的口令，放行
+		*)    exit 1 ;;
+	esac
+
+	alg=$(printf '%s' "$hash" | cut -d'$' -f2)
+	salt=$(printf '%s' "$hash" | cut -d'$' -f3)
+	[ -n "$alg" ] && [ -n "$salt" ] || exit 1
+
+	case "$alg" in
+		1|5|6) ;;
+		*) exit 1 ;;
+	esac
+
+	calc=$(printf '%s\n' "$pw" | openssl passwd "-$alg" -salt "$salt" -stdin 2>/dev/null)
+	[ "$calc" = "$hash" ] || exit 1
+	echo ok
+}
+
+cmd_fingerprint() {
+	if [ -s "$PUBFILE" ]; then
+		ssh-keygen -lf "$PUBFILE" | awk '{print $2}'
+	elif [ -s "$PRIV.pub" ]; then
+		ssh-keygen -lf "$PRIV.pub" | awk '{print $2}'
+	fi
+}
+
+case "${1:-status}" in
+	gen) cmd_gen ;;
+	status) cmd_status ;;
+	claim) cmd_claim ;;
+	revoke) cmd_revoke ;;
+	getkeys) cmd_getkeys ;;
+	setkeys) cmd_setkeys ;;
+	checkpw) shift; cmd_checkpw "$@" ;;
+	fingerprint) cmd_fingerprint ;;
+	*) echo "usage: device-key gen|status|claim|revoke|getkeys|setkeys|checkpw <file>|fingerprint" >&2; exit 1 ;;
+esac

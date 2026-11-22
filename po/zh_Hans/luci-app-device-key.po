@@ -1,0 +1,117 @@
+msgid ""
+msgstr ""
+"Content-Type: text/plain; charset=UTF-8\n"
+"Project-Id-Version: luci-app-device-key\n"
+"Language: zh_Hans\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+
+msgid "Device SSH Keys"
+msgstr "设备 SSH 密钥"
+
+msgid "A new key pair was generated. Claim the private key now."
+msgstr "已生成新的密钥对，请立即领取私钥。"
+
+msgid "Private key shown once and deleted from the device."
+msgstr "私钥只显示这一次，且已从设备删除。"
+
+msgid "Device key revoked."
+msgstr "设备密钥已吊销。"
+
+msgid "Authorized keys saved."
+msgstr "已保存授权公钥。"
+
+msgid "Wrong password, nothing changed."
+msgstr "密码错误，未做任何修改。"
+
+msgid "No pending private key on this device."
+msgstr "设备上没有待领取的私钥。"
+
+msgid "Could not update authorized_keys."
+msgstr "无法写入 authorized_keys。"
+
+msgid "Private key (shown once)"
+msgstr "私钥（仅显示一次）"
+
+msgid "This key has already been deleted from the device. Save it now; there is no second chance."
+msgstr "该私钥已从设备删除，请立即保存；关闭后无法再次获取。"
+
+msgid "Status"
+msgstr "状态"
+
+msgid "State"
+msgstr "状态"
+
+msgid "Key generated, waiting to be claimed"
+msgstr "已生成，等待领取"
+
+msgid "Claimed (device keeps only the public key)"
+msgstr "已领取（设备只保留公钥）"
+
+msgid "No key generated yet"
+msgstr "尚未生成密钥"
+
+msgid "Fingerprint"
+msgstr "指纹"
+
+msgid "Created"
+msgstr "生成时间"
+
+msgid "Authorized keys"
+msgstr "授权公钥数"
+
+msgid "Password login"
+msgstr "密码登录"
+
+msgid "disabled"
+msgstr "已禁用"
+
+msgid "enabled"
+msgstr "已启用"
+
+msgid "Claim private key"
+msgstr "领取私钥"
+
+msgid "The private key lives in RAM only and is deleted the moment it is shown."
+msgstr "私钥只存在于内存中，显示后立即删除。"
+
+msgid "Root password"
+msgstr "root 密码"
+
+msgid "Show private key once"
+msgstr "显示一次私钥"
+
+msgid "Device key pair"
+msgstr "设备密钥对"
+
+msgid "Generating replaces the previous device key; manually added keys are kept."
+msgstr "重新生成会替换上一次的设备密钥，手动添加的公钥会保留。"
+
+msgid "Generate new key pair"
+msgstr "生成新密钥对"
+
+msgid "Revoke device key"
+msgstr "吊销设备密钥"
+
+msgid "Manual public keys"
+msgstr "手动公钥"
+
+msgid "One key per line, same format as the stock SSH-Keys page."
+msgstr "每行一个公钥，格式与原「SSH 密钥」页面相同。"
+
+msgid "Save keys"
+msgstr "保存公钥"
+
+msgid "How to use"
+msgstr "使用说明"
+
+msgid "Generate a key pair, then claim the private key (shown once)."
+msgstr "先生成密钥对，再领取私钥（只显示一次）。"
+
+msgid "Save it locally and run chmod 600."
+msgstr "保存到本地并执行 chmod 600。"
+
+msgid "Log in with: ssh -i id_ed25519 -p 2222 root@<router>"
+msgstr "登录：ssh -i id_ed25519 -p 2222 root@<路由器地址>"
+
+msgid "The device keeps only the public key; it cannot hand the private key out again."
+msgstr "设备只保留公钥，无法再次交还私钥。"
