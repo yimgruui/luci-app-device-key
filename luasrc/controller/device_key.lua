@@ -33,6 +33,15 @@ local function run(arg)
 	return sys.exec(string.format("%s %s 2>/dev/null", HELPER, arg)) or ""
 end
 
+-- 取 dropbear 的实际端口，页面按它拼命令
+local function dropbear_port()
+	local p = io.popen("uci -q get dropbear.@dropbear[0].Port 2>/dev/null")
+	local port = p and (p:read("*l") or "") or ""
+	if p then p:close() end
+	if port == "" then port = "22" end
+	return port
+end
+
 local function status()
 	local s = {}
 	for line in run("status"):gmatch("[^\n]+") do
@@ -111,6 +120,7 @@ function action_page()
 		msg      = msg,
 		msgtext  = msg and MSG[msg] or nil,
 		revealed = revealed,
+		sshport  = dropbear_port(),
 		state    = st.state or "fresh",
 		pending  = (st.pending == "1"),
 		fingerprint = st.fingerprint or "",

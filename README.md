@@ -57,7 +57,7 @@ make package/luci-app-device-key/compile V=s
 1. 打开页面，点「生成新密钥对」，输入 root 密码。
 2. 状态变成“已生成，等待领取”，点「显示一次私钥」，再次输入 root 密码。
 3. 复制私钥保存到本地，`chmod 600 id_ed25519`。
-4. 登录：`ssh -i id_ed25519 -p 2222 root@192.168.11.1`。
+4. 登录：`ssh -i id_ed25519 root@192.168.11.1`（页面会按 dropbear 的实际端口显示，默认 22）。
 
 命令行等价操作：
 
@@ -82,8 +82,8 @@ device-key setkeys      # 从 stdin 覆盖 authorized_keys
 
 ## 兼容性
 
-- 页面用 Lua 控制器 + LuCI 模板实现（与 `luci-app-adguardhome-lite` 同一套机制），
-  依赖 `luci-compat`，适用于 19.07 ~ 25.12 的 Lua LuCI；已在 ImmortalWrt 25.12 上验证。
+- 页面用 Lua 控制器 + LuCI 模板实现，依赖 `luci-compat`，适用于 19.07 ~ 25.12 的 Lua LuCI；
+  已在 ImmortalWrt 25.12 上验证。
 - 需要 `ssh-keygen`（openssh-client）与 `openssl`，二者在 OpenWrt 官方源里都有。
 - 21.02+ 的 JS 版 LuCI 同样可以打开该 Lua 页面（走 luci-compat 的 uwsgi 通道）。
 

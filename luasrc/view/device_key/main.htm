@@ -106,7 +106,7 @@
 	<ol>
 		<li><%:Generate a key pair, then claim the private key (shown once).%></li>
 		<li><%:Save it locally and run chmod 600.%></li>
-		<li><%:Log in with: ssh -i id_ed25519 -p 2222 root@<router>%></li>
+		<li><%:Log in with:%> <code>ssh -i id_ed25519<% if sshport ~= "22" then %> -p <%=sshport%><% end %> root@&lt;router&gt;</code></li>
 		<li><%:The device keeps only the public key; it cannot hand the private key out again.%></li>
 	</ol>
 </div>

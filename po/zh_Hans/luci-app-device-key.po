@@ -110,8 +110,8 @@ msgstr "先生成密钥对，再领取私钥（只显示一次）。"
 msgid "Save it locally and run chmod 600."
 msgstr "保存到本地并执行 chmod 600。"
 
-msgid "Log in with: ssh -i id_ed25519 -p 2222 root@<router>"
-msgstr "登录：ssh -i id_ed25519 -p 2222 root@<路由器地址>"
+msgid "Log in with:"
+msgstr "登录："
 
 msgid "The device keeps only the public key; it cannot hand the private key out again."
 msgstr "设备只保留公钥，无法再次交还私钥。"

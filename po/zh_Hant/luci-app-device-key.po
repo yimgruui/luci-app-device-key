@@ -110,8 +110,8 @@ msgstr "先產生金鑰對，再領取私鑰（只顯示一次）。"
 msgid "Save it locally and run chmod 600."
 msgstr "儲存到本機並執行 chmod 600。"
 
-msgid "Log in with: ssh -i id_ed25519 -p 2222 root@<router>"
-msgstr "登入：ssh -i id_ed25519 -p 2222 root@<路由器位址>"
+msgid "Log in with:"
+msgstr "登入："
 
 msgid "The device keeps only the public key; it cannot hand the private key out again."
 msgstr "裝置只保留公鑰，無法再次交還私鑰。"
