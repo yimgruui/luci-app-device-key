@@ -23,7 +23,7 @@
 	<table class="table">
 		<tr><th><%:State%></th><td>
 			<% if state == "pending" then %><%:Key generated, waiting to be claimed%>
-			<% elseif state == "claimed" then %><%:Claimed (device keeps only the public key)%>
+			<% elseif state == "claimed" or state == "active" then %><%:Claimed (device keeps only the public key)%>
 			<% else %><%:No key generated yet%><% end %>
 		</td></tr>
 		<tr><th><%:Fingerprint%></th><td><code><%=pcdata(fingerprint ~= "" and fingerprint or "-")%></code></td></tr>

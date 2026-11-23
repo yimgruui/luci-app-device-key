@@ -59,7 +59,7 @@ cmd_gen() {
 }
 
 cmd_status() {
-	local state=fresh fp="" created="" keys=0 pending=0
+	local state=fresh fp="" created="" keys=0 pending=0 ours=0
 	[ -e "$PUBFILE" ] && [ -s "$META" ] && state=claimed
 	[ -s "$PRIV" ] && { state=pending; pending=1; }
 	[ -s "$META" ] && {
@@ -67,6 +67,10 @@ cmd_status() {
 		created=$(sed -n 's/^created=//p' "$META")
 	}
 	[ -e "$AUTH" ] && keys=$(grep -c . "$AUTH" 2>/dev/null || echo 0)
+	# 状态目录可能在「保留配置升级」时没被带过来（/etc/sysupgrade.conf 里没有它）：
+	# 只要 authorized_keys 里还有我们写的行，就说明本机钥匙仍然有效，别显示成「未生成」。
+	[ -e "$AUTH" ] && ours=$(grep -c "^[^#].*$MARKER" "$AUTH" 2>/dev/null || echo 0)
+	[ "$state" = fresh ] && [ "${ours:-0}" -gt 0 ] && state=active
 	echo "state=$state"
 	echo "pending=$pending"
 	echo "fingerprint=$fp"
