@@ -154,3 +154,6 @@ msgstr "依賴"
 
 msgid "Keys are generated on the device with ssh-keygen; nothing is sent anywhere. The private key never touches flash."
 msgstr "金鑰在本機以 ssh-keygen 產生，不會傳送到任何地方；私鑰不會寫入快閃記憶體。"
+
+msgid "Required so a hijacked session cannot silently replace the key."
+msgstr "需要再次輸入 root 密碼，避免工作階段被劫持後悄悄換掉金鑰。"
