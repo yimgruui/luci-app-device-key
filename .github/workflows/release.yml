@@ -189,6 +189,8 @@ jobs:
     steps:
       - name: Checkout source for release metadata
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Determine release tag
         id: release_tag
@@ -229,11 +231,46 @@ jobs:
           sha256sum "${PACKAGE_FILES[@]}" > SHA256SUMS.txt
           ls -lh
 
+      - name: Generate release notes
+        shell: bash
+        env:
+          TAG: ${{ steps.release_tag.outputs.tag }}
+        run: |
+          set -euo pipefail
+          PREV="$(git describe --tags --abbrev=0 "${GITHUB_SHA}^" 2>/dev/null || true)"
+          if [[ -n "$PREV" && "$PREV" != "$TAG" ]]; then
+            CHANGES="$(git log --no-merges --pretty='- %s' "$PREV..$GITHUB_SHA" | head -n 40)"
+            COMPARE="https://github.com/${GITHUB_REPOSITORY}/compare/$PREV...$TAG"
+          else
+            CHANGES="$(git log --no-merges --pretty='- %s' -n 20 "$GITHUB_SHA")"
+            COMPARE=""
+          fi
+          [[ -n "$CHANGES" ]] || CHANGES="- 维护性更新"
+          {
+            printf '## luci-app-device-key %s\n\n' "$TAG"
+            printf '%s\n\n' "每台设备自己的 SSH 密钥对：私钥在设备上生成、只在页面显示一次（存在内存里，不写闪存），设备只保留公钥并写入 authorized_keys。"
+                        printf '### 兼容性\n\n| 包 | 构建环境 |\n|---|---|\n| ipk | OpenWrt 24.10.8 |\n| apk | OpenWrt 25.12.6 |\n\n'
+
+            printf '### 安装\n\n'
+            printf '```sh\n'
+            printf '# OpenWrt 24.10 及更早（opkg）\n'
+            printf 'opkg install luci-app-device-key_*_all.ipk\n\n'
+            printf '# OpenWrt 25.12（apk）\n'
+            printf 'apk add --allow-untrusted luci-app-device-key-*_all.apk\n'
+            printf '```\n\n'
+            printf '依赖：`%s`。安装后刷新 LuCI 页面即可。\n\n' "luci-compat dropbear openssh-keygen openssl-util"
+            printf '### 本次变更\n\n%s\n\n' "$CHANGES"
+            if [[ -n "$COMPARE" ]]; then printf '完整对比：%s\n\n' "$COMPARE"; fi
+            printf '### 校验\n\n'
+            printf '下载 `SHA256SUMS.txt` 后执行 `sha256sum -c SHA256SUMS.txt`。\n'
+          } > release-notes.md
+          cat release-notes.md
+
       - name: Publish GitHub Release
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ steps.release_tag.outputs.tag }}
           target_commitish: ${{ github.sha }}
-          name: ${{ steps.release_tag.outputs.tag }} - luci-app-device-key
-          generate_release_notes: true
+          name: luci-app-device-key ${{ steps.release_tag.outputs.tag }}
+          body_path: release-notes.md
           files: release-assets/*
