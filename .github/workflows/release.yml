@@ -154,9 +154,10 @@ jobs:
           set -euo pipefail
           OUTPUT_DIR="$GITHUB_WORKSPACE/dist"
           mkdir -p "$OUTPUT_DIR"
+          BASE_NAME="${PACKAGE_NAME#luci-app-}"
           mapfile -t PACKAGE_FILES < <(
             find "$SDK_DIR/bin/packages" -type f \
-              -name "${PACKAGE_NAME}*.${PACKAGE_EXTENSION}" \
+              \( -name "${PACKAGE_NAME}*.${PACKAGE_EXTENSION}" -o -name "luci-i18n-${BASE_NAME}-*.${PACKAGE_EXTENSION}" \) \
               -print | sort
           )
           if [[ "${#PACKAGE_FILES[@]}" -eq 0 ]]; then
@@ -254,11 +255,11 @@ jobs:
             printf '### 安装\n\n'
             printf '```sh\n'
             printf '# OpenWrt 23.05 及以上（opkg，实测 24.10.8 SDK）\n'
-            printf 'opkg install luci-app-device-key_*_all.ipk\n\n'
+            printf 'opkg install luci-app-device-key_*.ipk luci-i18n-device-key-zh-cn_*.ipk\n\n'
             printf '# OpenWrt 25.12（apk）\n'
-            printf 'apk add --allow-untrusted luci-app-device-key-*_all.apk\n'
+            printf 'apk add --allow-untrusted luci-app-device-key-*.apk luci-i18n-device-key-zh-cn-*.apk\n'
             printf '```\n\n'
-            printf '依赖：`%s`。安装后刷新 LuCI 页面即可。\n\n' "luci-compat dropbear openssh-keygen openssl-util"
+            printf '依赖：`%s`。简体中文在单独的 `luci-i18n-device-key-zh-cn` 包里，装好后跟随 LuCI 语言自动切换。\n\n' "luci-compat dropbear openssh-keygen openssl-util"
             printf '### 本次变更\n\n%s\n\n' "$CHANGES"
             if [[ -n "$COMPARE" ]]; then printf '完整对比：%s\n\n' "$COMPARE"; fi
             printf '### 校验\n\n'

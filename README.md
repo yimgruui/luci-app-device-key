@@ -50,6 +50,12 @@ echo "CONFIG_PACKAGE_luci-app-device-key=y" >> .config
 make package/luci-app-device-key/compile V=s
 ```
 
+发版时还会构建简体中文语言包 `luci-i18n-device-key-zh-cn`，装到设备上即跟随 LuCI 语言自动切换：
+
+```sh
+opkg install luci-app-device-key_*.ipk luci-i18n-device-key-zh-cn_*.ipk
+```
+
 装好后刷新 LuCI，菜单在 **系统 → 管理权 → 设备 SSH 密钥**。
 
 ## 使用
