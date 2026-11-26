@@ -249,11 +249,11 @@ jobs:
           {
             printf '## luci-app-device-key %s\n\n' "$TAG"
             printf '%s\n\n' "每台设备自己的 SSH 密钥对：私钥在设备上生成、只在页面显示一次（存在内存里，不写闪存），设备只保留公钥并写入 authorized_keys。"
-                        printf '### 兼容性\n\n| 包 | 构建环境 |\n|---|---|\n| ipk | OpenWrt 24.10.8 |\n| apk | OpenWrt 25.12.6 |\n\n'
+                        printf '### 兼容性\n\n| 包 | 构建环境 |\n|---|---|\n| ipk | OpenWrt 24.10.8（23.05+ 通用） |\n| apk | OpenWrt 25.12.6 |\n\n'
 
             printf '### 安装\n\n'
             printf '```sh\n'
-            printf '# OpenWrt 24.10 及更早（opkg）\n'
+            printf '# OpenWrt 23.05 及以上（opkg，实测 24.10.8 SDK）\n'
             printf 'opkg install luci-app-device-key_*_all.ipk\n\n'
             printf '# OpenWrt 25.12（apk）\n'
             printf 'apk add --allow-untrusted luci-app-device-key-*_all.apk\n'
