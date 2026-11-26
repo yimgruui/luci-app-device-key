@@ -1,114 +1,184 @@
 <%+header%>
 
+<style>
+	.dk-card { background: rgba(127,127,127,.06); border: 1px solid rgba(127,127,127,.22);
+		border-radius: 8px; padding: 14px 18px 18px; margin-bottom: 16px; }
+	.dk-card h3 { margin: 0 0 12px; font-size: 105%; }
+	.dk-wrap { max-width: 1180px; margin: 0 auto; }
+	.dk-tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 12px; }
+	.dk-tile { background: rgba(127,127,127,.10); border-radius: 8px; padding: 12px 14px; }
+	.dk-tile .dk-v { font-size: 115%; font-weight: 600; overflow-wrap: anywhere; }
+	.dk-tile .dk-k { opacity: .65; font-size: 88%; margin-top: 3px; }
+	.dk-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 0 28px; }
+	.dk-field { display: grid; grid-template-columns: 10.5em minmax(0, 1fr); gap: 20px;
+		align-items: center; padding: 5px 0; }
+	.dk-field > label { text-align: right; opacity: .8; font-size: 93%; line-height: 1.3; white-space: nowrap; }
+	.dk-field input[type=password], .dk-field input[type=text] { width: 100%; box-sizing: border-box; }
+	.dk-badge { display: inline-block; padding: 1px 8px; border-radius: 10px; font-size: 88%;
+		background: rgba(127,127,127,.25); color: inherit; }
+	.dk-badge.ok { background: rgba(76,175,80,.28); }
+	.dk-badge.warn { background: rgba(255,152,0,.30); }
+	.dk-badge.off { background: rgba(127,127,127,.20); }
+	.dk-actions { display: flex; gap: 8px; justify-content: flex-end; margin-top: 12px; flex-wrap: wrap; }
+	.dk-key { width: 100%; font-family: monospace; box-sizing: border-box; }
+	.dk-steps { margin: 0; padding-left: 1.2em; line-height: 1.7; }
+	.dk-about { display: grid; grid-template-columns: 10.5em minmax(0, 1fr);
+		gap: 4px 20px; font-size: 93%; }
+	.dk-about > span:nth-child(odd) { text-align: right; opacity: .65; }
+	.dk-note { opacity: .75; font-size: 92%; line-height: 1.6; }
+	@media (max-width: 640px) {
+		.dk-field, .dk-about { grid-template-columns: 1fr; gap: 4px; }
+		.dk-field > label, .dk-about > span:nth-child(odd) { text-align: left; }
+	}
+</style>
+
+<div class="dk-wrap">
 <h2 name="content"><%:Device SSH Keys%></h2>
+<p class="cbi-value-description">
+	<%:The device generates its own key pair. The private key is kept in RAM, shown once, then deleted; only the public key stays on the device.%>
+</p>
 
 <% if msg then %>
-	<div class="alert-message <%= msg == "badpw" and "warning" or "notice" %>">
+	<div class="dk-card" style="border-color: <%= msg == "badpw" and "rgba(255,152,0,.55)" or "rgba(76,175,80,.45)" %>">
 		<%=pcdata(msgtext or msg)%>
 	</div>
 <% end %>
 
 <% if revealed and #revealed > 0 then %>
-	<div class="cbi-section">
+	<div class="dk-card" style="border-color: rgba(255,152,0,.6)">
 		<h3><%:Private key (shown once)%></h3>
-		<div class="alert-message warning">
-			<%:This key has already been deleted from the device. Save it now; there is no second chance.%>
-		</div>
-		<textarea rows="10" style="width:100%;font-family:monospace" readonly="readonly"><%=pcdata(revealed)%></textarea>
+		<p class="dk-note"><%:This key has already been deleted from the device. Save it now; there is no second chance.%></p>
+		<textarea class="dk-key" rows="10" readonly="readonly"><%=pcdata(revealed)%></textarea>
 	</div>
 <% end %>
 
-<div class="cbi-section">
+<div class="dk-card">
 	<h3><%:Status%></h3>
-	<table class="table">
-		<tr><th><%:State%></th><td>
-			<% if state == "pending" then %><%:Key generated, waiting to be claimed%>
-			<% elseif state == "claimed" or state == "active" then %><%:Claimed (device keeps only the public key)%>
-			<% else %><%:No key generated yet%><% end %>
-		</td></tr>
-		<tr><th><%:Fingerprint%></th><td><code><%=pcdata(fingerprint ~= "" and fingerprint or "-")%></code></td></tr>
-		<tr><th><%:Created%></th><td><%=pcdata(created ~= "" and created or "-")%></td></tr>
-		<tr><th><%:Authorized keys%></th><td><%=pcdata(nkeys)%></td></tr>
-		<tr><th><%:Password login%></th><td>
-			<% if pwauth == "0" then %><%:disabled%><% else %><%:enabled%><% end %>
-		</td></tr>
-	</table>
+	<div class="dk-tiles">
+		<div class="dk-tile">
+			<div class="dk-v">
+				<% if state == "pending" then %><span class="dk-badge warn"><%:Waiting for claim%></span>
+				<% elseif state == "claimed" or state == "active" then %><span class="dk-badge ok"><%:In use%></span>
+				<% else %><span class="dk-badge off"><%:Not generated%></span><% end %>
+			</div>
+			<div class="dk-k"><%:State%></div>
+		</div>
+		<div class="dk-tile">
+			<div class="dk-v"><code><%=pcdata(fingerprint ~= "" and fingerprint or "-")%></code></div>
+			<div class="dk-k"><%:Fingerprint%></div>
+		</div>
+		<div class="dk-tile">
+			<div class="dk-v"><%=pcdata(nkeys)%></div>
+			<div class="dk-k"><%:Authorized keys%></div>
+		</div>
+		<div class="dk-tile">
+			<div class="dk-v">
+				<% if pwauth == "0" then %><span class="dk-badge off"><%:disabled%></span>
+				<% else %><span class="dk-badge"><%:enabled%></span><% end %>
+			</div>
+			<div class="dk-k"><%:Password login%></div>
+		</div>
+	</div>
+	<p class="dk-note" style="margin-top:12px">
+		<% if state == "pending" then %><%:Key generated, waiting to be claimed%>
+		<% elseif state == "claimed" or state == "active" then %><%:Claimed (device keeps only the public key)%>
+		<% else %><%:No key generated yet%><% end %>
+		<% if created ~= "" then %> · <%:Created%>: <%=pcdata(created)%><% end %>
+	</p>
 </div>
 
-<% if pending then %>
-<div class="cbi-section">
-	<h3><%:Claim private key%></h3>
-	<p><%:The private key lives in RAM only and is deleted the moment it is shown.%></p>
-	<form method="post" action="">
-		<input type="hidden" name="token" value="<%=pcdata(token)%>" />
-		<input type="hidden" name="action" value="claim" />
-		<div class="cbi-value">
-			<label class="cbi-value-title"><%:Root password%></label>
-			<div class="cbi-value-field"><input type="password" name="password" /></div>
-		</div>
-		<div class="cbi-page-actions">
-			<input type="submit" class="cbi-button cbi-button-apply" value="<%:Show private key once%>" />
-		</div>
-	</form>
-</div>
-<% end %>
+<div class="dk-grid">
+	<div class="dk-card">
+		<h3><%:Device key pair%></h3>
+		<p class="dk-note"><%:Generating replaces the previous device key; manually added keys are kept.%></p>
+		<form method="post" action="">
+			<input type="hidden" name="token" value="<%=pcdata(token)%>" />
+			<input type="hidden" name="action" value="gen" />
+			<div class="dk-field">
+				<label><%:Root password%></label>
+				<input type="password" name="password" autocomplete="current-password" />
+			</div>
+			<div class="dk-actions">
+				<input type="submit" class="cbi-button cbi-button-action" value="<%:Generate new key pair%>" />
+			</div>
+		</form>
 
-<div class="cbi-section">
-	<h3><%:Device key pair%></h3>
-	<p><%:Generating replaces the previous device key; manually added keys are kept.%></p>
+		<% if state ~= "fresh" then %>
+		<form method="post" action="" onsubmit="return confirm('<%:Revoke the device key? Manual keys are not touched.%>')">
+			<input type="hidden" name="token" value="<%=pcdata(token)%>" />
+			<input type="hidden" name="action" value="revoke" />
+			<div class="dk-field">
+				<label><%:Root password%></label>
+				<input type="password" name="password" autocomplete="current-password" />
+			</div>
+			<div class="dk-actions">
+				<input type="submit" class="cbi-button cbi-button-reset" value="<%:Revoke device key%>" />
+			</div>
+		</form>
+		<% end %>
+	</div>
 
-	<form method="post" action="">
-		<input type="hidden" name="token" value="<%=pcdata(token)%>" />
-		<input type="hidden" name="action" value="gen" />
-		<div class="cbi-value">
-			<label class="cbi-value-title"><%:Root password%></label>
-			<div class="cbi-value-field"><input type="password" name="password" /></div>
-		</div>
-		<div class="cbi-page-actions">
-			<input type="submit" class="cbi-button cbi-button-action" value="<%:Generate new key pair%>" />
-		</div>
-	</form>
-
-	<% if state ~= "fresh" then %>
-	<form method="post" action="">
-		<input type="hidden" name="token" value="<%=pcdata(token)%>" />
-		<input type="hidden" name="action" value="revoke" />
-		<div class="cbi-value">
-			<label class="cbi-value-title"><%:Root password%></label>
-			<div class="cbi-value-field"><input type="password" name="password" /></div>
-		</div>
-		<div class="cbi-page-actions">
-			<input type="submit" class="cbi-button cbi-button-reset" value="<%:Revoke device key%>" />
-		</div>
-	</form>
-	<% end %>
-</div>
-
-<div class="cbi-section">
-	<h3><%:Manual public keys%></h3>
-	<p><%:One key per line, same format as the stock SSH-Keys page.%></p>
-	<form method="post" action="">
-		<input type="hidden" name="token" value="<%=pcdata(token)%>" />
-		<input type="hidden" name="action" value="savekeys" />
-		<div class="cbi-value">
-			<label class="cbi-value-title"><%:Root password%></label>
-			<div class="cbi-value-field"><input type="password" name="password" /></div>
-		</div>
-		<textarea name="keys" rows="8" style="width:100%;font-family:monospace"><%=pcdata(keys)%></textarea>
-		<div class="cbi-page-actions">
-			<input type="submit" class="cbi-button cbi-button-save" value="<%:Save keys%>" />
-		</div>
-	</form>
+	<div class="dk-card">
+		<h3><%:Claim private key%></h3>
+		<% if pending then %>
+		<p class="dk-note"><%:The private key lives in RAM only and is deleted the moment it is shown.%></p>
+		<form method="post" action="">
+			<input type="hidden" name="token" value="<%=pcdata(token)%>" />
+			<input type="hidden" name="action" value="claim" />
+			<div class="dk-field">
+				<label><%:Root password%></label>
+				<input type="password" name="password" autocomplete="current-password" />
+			</div>
+			<div class="dk-actions">
+				<input type="submit" class="cbi-button cbi-button-apply" value="<%:Show private key once%>" />
+			</div>
+		</form>
+		<% else %>
+		<p class="dk-note"><%:There is no pending private key. Generate one first, then claim it immediately.%></p>
+		<p class="dk-note"><%:After the key has been claimed it can never be exported again. Generate a new pair if it was lost.%></p>
+		<% end %>
+	</div>
 </div>
 
-<div class="cbi-section">
+<div class="dk-card">
 	<h3><%:How to use%></h3>
-	<ol>
+	<ol class="dk-steps">
 		<li><%:Generate a key pair, then claim the private key (shown once).%></li>
 		<li><%:Save it locally and run chmod 600.%></li>
 		<li><%:Log in with:%> <code>ssh -i id_ed25519<% if sshport ~= "22" then %> -p <%=sshport%><% end %> root@&lt;router&gt;</code></li>
 		<li><%:The device keeps only the public key; it cannot hand the private key out again.%></li>
 	</ol>
+</div>
+
+<div class="dk-card">
+	<h3><%:Manual public keys%></h3>
+	<p class="dk-note"><%:One key per line, same format as the stock SSH-Keys page.%></p>
+	<form method="post" action="">
+		<input type="hidden" name="token" value="<%=pcdata(token)%>" />
+		<input type="hidden" name="action" value="savekeys" />
+		<textarea class="dk-key" name="keys" rows="8"><%=pcdata(keys)%></textarea>
+		<div class="dk-field" style="margin-top:8px">
+			<label><%:Root password%></label>
+			<input type="password" name="password" autocomplete="current-password" />
+		</div>
+		<div class="dk-actions">
+			<input type="submit" class="cbi-button cbi-button-save" value="<%:Save keys%>" />
+		</div>
+	</form>
+</div>
+
+<div class="dk-card">
+	<h3><%:About%></h3>
+	<div class="dk-about">
+		<span><%:Version%></span><span><%=pcdata(appver)%></span>
+		<span><%:License%></span><span>MIT</span>
+		<span><%:Source code%></span><span><a href="https://github.com/yimgruui/luci-app-device-key" target="_blank" rel="noopener">yimgruui/luci-app-device-key</a></span>
+		<span><%:Requires%></span><span>dropbear, openssh-keygen, openssl-util, luci-compat</span>
+	</div>
+	<p class="dk-note" style="margin-top:10px">
+		<%:Keys are generated on the device with ssh-keygen; nothing is sent anywhere. The private key never touches flash.%>
+	</p>
+</div>
 </div>
 
 <%+footer%>

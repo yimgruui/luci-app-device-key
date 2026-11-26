@@ -33,6 +33,31 @@ local function run(arg)
 	return sys.exec(string.format("%s %s 2>/dev/null", HELPER, arg)) or ""
 end
 
+-- 已安装的包版本：读 apk / opkg 的数据库，取不到就显示 unknown
+local function pkgver(pkg)
+	local function scan(path, namekey, verkey)
+		local f = io.open(path, "r")
+		if not f then return nil end
+		local name, ver
+		for line in f:lines() do
+			if line == "" then
+				if name == pkg and ver then f:close(); return ver end
+				name, ver = nil, nil
+			else
+				local k, v = line:match("^([%w%-]+):%s*(.+)$")
+				if k == namekey then name = v
+				elseif k == verkey then ver = v end
+			end
+		end
+		f:close()
+		if name == pkg and ver then return ver end
+		return nil
+	end
+	return scan("/lib/apk/db/installed", "P", "V")
+		or scan("/usr/lib/opkg/status", "Package", "Version")
+		or "unknown"
+end
+
 -- 取 dropbear 的实际端口，页面按它拼命令
 local function dropbear_port()
 	local p = io.popen("uci -q get dropbear.@dropbear[0].Port 2>/dev/null")
@@ -121,6 +146,7 @@ function action_page()
 		msgtext  = msg and MSG[msg] or nil,
 		revealed = revealed,
 		sshport  = dropbear_port(),
+		appver   = pkgver("luci-app-device-key"),
 		state    = st.state or "fresh",
 		pending  = (st.pending == "1"),
 		fingerprint = st.fingerprint or "",

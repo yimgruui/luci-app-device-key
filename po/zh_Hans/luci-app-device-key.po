@@ -115,3 +115,42 @@ msgstr "登录："
 
 msgid "The device keeps only the public key; it cannot hand the private key out again."
 msgstr "设备只保留公钥，无法再次交还私钥。"
+
+msgid "The device generates its own key pair. The private key is kept in RAM, shown once, then deleted; only the public key stays on the device."
+msgstr "密钥对由设备自己生成；私钥只存在于内存，显示一次后立即删除，设备上只保留公钥。"
+
+msgid "Waiting for claim"
+msgstr "等待领取"
+
+msgid "In use"
+msgstr "使用中"
+
+msgid "Not generated"
+msgstr "未生成"
+
+msgid "Revoke the device key? Manual keys are not touched."
+msgstr "吊销设备密钥？手动添加的公钥不受影响。"
+
+msgid "There is no pending private key. Generate one first, then claim it immediately."
+msgstr "当前没有待领取的私钥；请先生成，然后立即领取。"
+
+msgid "After the key has been claimed it can never be exported again. Generate a new pair if it was lost."
+msgstr "私钥领取后无法再次导出；若已丢失，请重新生成。"
+
+msgid "About"
+msgstr "关于"
+
+msgid "Version"
+msgstr "版本"
+
+msgid "License"
+msgstr "许可证"
+
+msgid "Source code"
+msgstr "源代码"
+
+msgid "Requires"
+msgstr "依赖"
+
+msgid "Keys are generated on the device with ssh-keygen; nothing is sent anywhere. The private key never touches flash."
+msgstr "密钥在本机用 ssh-keygen 生成，不会发送到任何地方；私钥不会写入闪存。"
